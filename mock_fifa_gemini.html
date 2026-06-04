@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>運動與各類節目 - 推播與站內信模擬器</title>
+    <style>
+        :root {
+            --bg-color: #f0f2f5;
+            --phone-border: #333;
+            --text-main: #1c1c1e;
+            --text-sub: #8e8e93;
+            --brand-color: #ff3b30;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 30px 20px;
+            color: var(--text-main);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: #fff;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            max-width: 750px;
+            margin: 0 auto 30px auto;
+        }
+
+        .header h2 {
+            margin-top: 0;
+            color: #333;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        select {
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            outline: none;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: #fff;
+            font-weight: bold;
+            color: #333;
+            min-width: 250px;
+        }
+
+        select:hover {
+            border-color: var(--brand-color);
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 40px;
+            justify-content: center;
+        }
+
+        /* 手機外框通用設定 */
+        .phone-mockup {
+            border-radius: 35px;
+            width: 320px;
+            height: 600px;
+            box-shadow: inset 0 0 0 10px var(--phone-border), 0 15px 25px rgba(0,0,0,0.15);
+            position: relative;
+            overflow: hidden;
+            background: #fff;
+        }
+
+        /* 手機瀏海 */
+        .notch {
+            position: absolute;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 120px;
+            height: 25px;
+            background: var(--phone-border);
+            border-bottom-left-radius: 15px;
+            border-bottom-right-radius: 15px;
+            z-index: 10;
+        }
+
+        .mockup-title {
+            text-align: center;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+
+        .phone-wrapper {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- 鎖定畫面推播 (Lock Screen Push) --- */
+        .lock-screen {
+            background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+            padding: 20px 15px;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-display {
+            text-align: center;
+            color: #fff;
+            margin-top: 60px;
+            margin-bottom: 30px;
+        }
+        
+        .time-display h1 {
+            margin: 0;
+            font-size: 60px;
+            font-weight: 400;
+        }
+        
+        .time-display p {
+            margin: 5px 0 0 0;
+            font-size: 18px;
+        }
+
+        .os-push {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .os-push-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .app-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .app-icon {
+            width: 20px;
+            height: 20px;
+            background: var(--brand-color);
+            border-radius: 5px;
+        }
+
+        .os-push-title {
+            font-weight: bold;
+            font-size: 15px;
+            margin-bottom: 4px;
+            color: #111;
+        }
+
+        .os-push-content {
+            font-size: 14px;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        /* --- 站內信箱 (In-App Inbox Mail) --- */
+        .app-screen {
+            background: #fff;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        .app-header {
+            background: #f8f8f8;
+            padding: 45px 15px 15px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: bold;
+            color: #111;
+        }
+
+        .back-btn {
+            color: var(--brand-color);
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .mail-body {
+            padding: 25px 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        .mail-title {
+            font-size: 20px;
+            font-weight: bolder;
+            color: #111;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .mail-date {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 15px;
+        }
+
+        .mail-divider {
+            border: 0;
+            border-top: 1px solid #eee;
+            margin-bottom: 25px;
+        }
+
+        .mail-content {
+            font-size: 15px;
+            color: #444;
+            line-height: 1.8;
+            margin-bottom: 30px;
+            text-align: justify;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>📱 運動與各類節目 - 推播與站內信模擬器</h2>
+        <div class="controls">
+            <!-- 單一下拉選單：類別與節目合併 -->
+            <select id="contentSelect" onchange="updateUI()">
+                <!-- Javascript 動態生成 -->
+            </select>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- 手機 1：系統推播 (鎖定畫面) -->
+        <div class="phone-wrapper">
+            <div class="mockup-title">1️⃣ 手機解鎖畫面 (OS 推播)</div>
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="lock-screen">
+                    <div class="time-display">
+                        <h1 id="clock-time">09:41</h1>
+                        <p id="clock-date">6月4日 星期四</p>
+                    </div>
+                    
+                    <div class="os-push">
+                        <div class="os-push-header">
+                            <div class="app-info">
+                                <div class="app-icon"></div>
+                                <span>影音 APP</span>
+                            </div>
+                            <div class="app-info">現在</div>
+                        </div>
+                        <div class="os-push-title" id="notif-title">標題</div>
+                        <div class="os-push-content" id="notif-content">內容</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 手機 2：站內信箱 (APP 內部) -->
+        <div class="phone-wrapper">
+            <div class="mockup-title">2️⃣ 點擊推播進入 APP (站內信)</div>
+            <div class="phone-mockup">
+                <div class="notch"></div>
+                <div class="app-screen">
+                    <div class="app-header">
+                        <span class="back-btn">〈 返回</span>
+                        <span>站內信箱</span>
+                        <span style="width: 45px;"></span> <!-- 佔位符保持標題置中 -->
+                    </div>
+                    
+                    <div class="mail-body">
+                        <div class="mail-title" id="msg-title">站內信標題</div>
+                        <div class="mail-date" id="mail-date-display">2026-06-04 09:41</div>
+                        <hr class="mail-divider">
+                        
+                        <!-- 已經移除「親愛的用戶您好，」前綴 -->
+                        <div class="mail-content" id="msg-content">站內信內容</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 資料集 (將類別與節目合併成單一層級)
+        const data = {
+            "運動 - FIFA世界盃": {
+                "category": "運動",
+                "nt_title": "世界盃巨星焦點來了",
+                "nt_content": "48隊、104場足球盛宴登場，C羅最後一屆世足話題升溫，精彩直播鎖定 Hami Video。",
+                "msg_title": "綠茵史詩｜48強空前割據，104場生死戰役，鎖定Hami Video！",
+                "msg_content": "世界盃迎來歷史性改制！台灣時間 6/12 至 7/20，2026世界盃美加墨戰火正式點燃！本屆賽事規模擴編至 48 支勁旅、12個分組，共 104 場高強度戰役，在北美 16 座城市頂尖對決。這不僅是戰術、體能與意志力的極限考驗，更是群雄逐鹿的黃金交叉點。美、加、墨三大主場同步啟動，高節奏壓迫、防守反擊與神仙球即將天天上演。Hami Video 貼心提供多視角分析與低延遲直播，讓您精準捕捉每一記越位判罰、世界波與關鍵防守。準備好迎接全球最高水準的足球盛宴了嗎？看點焦點：全新48強單敗淘汰對決、頂級戰術大師博弈。"
+            },
+            "運動 - NBA總冠軍賽": {
+                "category": "運動",
+                "nt_title": "新王登基還是強者制霸",
+                "nt_content": "2026 NBA總冠軍賽熱血開戰，七戰四勝巔峰對決，精彩直播千萬別錯過。",
+                "msg_title": "【終極決戰｜新王登基還是強者制霸？2026 NBA總冠軍賽開戰！】",
+                "msg_content": "2026 NBA總冠軍賽熱血登場！新生代超巨正面交鋒，頂尖球星將在七戰四勝制系列賽中爭奪奧布萊恩金盃，究竟是新王登基，還是強者持續制霸？本屆總冠軍賽看點滿滿，從高強度防守絞殺、禁區肉搏戰，到關鍵時刻的球星對決與戰術博弈，每一場都可能改寫冠軍走向。賽程將於 6/4 至 6/20 展開，為避免與世界盃衝突，更迎來56年首度歷史性調整，讓球迷能完整掌握每場頂尖對決。看點焦點：高強度戰術博弈、新生代超巨巔峰對決。鎖定 Hami體育1台 直播收看，見證總冠軍戒指最終落戶誰家！"
+            },
+            "運動 - MLB": {
+                "category": "運動",
+                "nt_title": "MLB熱戰鎖定台灣力量",
+                "nt_content": "大谷二刀流話題延燒，鄧愷威、李灝宇旅美表現受矚目，精彩賽事鎖定直播。",
+                "msg_title": "【MLB狂熱｜大谷二刀流爭霸，台灣雙星鄧愷威、李灝宇強勢突圍！】",
+                "msg_content": "大聯盟賽季話題升溫，投打二刀流的大谷翔平持續牽動戰局，強權球隊排名與外卡競爭也逐漸白熱化。台灣好手同樣成為本季焦點，鄧愷威在太空人投手丘展現壓制力，靠著快速球與變化球持續爭取關鍵出賽機會；李灝宇則完成大聯盟初登場，並以長打火力寫下生涯代表作，讓台灣球迷看見新世代旅美球員的成長能量。想掌握最即時的大聯盟戰況與球星表現，鎖定 Hami Video MLB 直播，一起見證本季最熱血的棒球時刻。"
+            },
+            "綜藝|運動 - Fighting時間": {
+                "category": "綜藝|運動",
+                "nt_title": "啦啦隊女神挑戰職人生活",
+                "nt_content": "《Fighting時間》集結人氣女孩走遍台灣，挑戰職人任務，展現球場外反差魅力。",
+                "msg_title": "【綜藝新首選】台韓啦啦隊女神集體破防？全新實境秀《Fighting時間》爆笑登場！",
+                "msg_content": "平時在場上甜美光鮮的啦啦隊女神，這次在鏡頭前通通「形象破滅」啦！全新外景實境《Fighting時間》破天荒邀請廉世彬、李素敏、睦那京等 8 位超人氣韓籍女神，與台灣女孩攜手挑戰各種最真實、最接地氣的台灣職人生活！看女神們半夜素顏下水摸蛤蜊、被農場羊群追到花容失色，還要苦練台語跟在地阿伯溝通，最毫無防備的崩潰反應與團體火花通通真實呈現！充滿歡笑、汗水與滿滿療癒感，這絕對是您下班放鬆、大笑舒壓的下飯首選。一週的壓力，就用女孩們的超反差日常來治癒吧！鎖定 Hami Video「麥卡貝綜藝台」，《Fighting時間》每週二 20:00 更新，點燃您的綜藝魂！"
+            },
+            "影劇|綜合 - 阿松與阿暖": {
+                "category": "影劇|綜合",
+                "nt_title": "台劇熟面孔回來了",
+                "nt_content": "柯叔元、韓瑜、白家綺同台主演，帶來充滿在地溫度的九點檔新劇。",
+                "msg_title": "頻道戲劇迷必看！晚間黃金時段「雙戲接力」免轉台！",
+                "msg_content": "愛追頻道劇的您，準備好迎接全新的追劇熱潮了嗎？民視於6月8日起調整播出策略，推出史無前例的「雙戲並行」模式！每晚看完笑中帶淚的八點檔《豆腐媽媽》後不用急著換台，21:15立刻接續收看精緻大戲《阿松與阿暖》，無縫接軌的連貫安排，讓您坐在沙發上就能輕鬆享受不間斷的追劇樂趣。最懂頻道觀眾的黃金陣容回來了！柯叔元、台劇女神韓瑜、白家綺攜手同台，在新北雙溪上演圍繞台灣傳統「紙藝工坊」的溫情故事。除了飽含在地人情味與家族羈絆，更融入了跨時空奇幻彩蛋，兼具傳統戲劇的溫度與精緻的視覺質感。天天守候在電視機前的您，這部充滿台灣在地情懷的溫馨佳作絕對值得鎖定。6月8日起每晚鎖定民視，讓您的夜晚戲劇時光更加充實！"
+            }
+        };
+
+        // 初始化單一下拉選單
+        function initSelect() {
+            const select = document.getElementById("contentSelect");
+            select.innerHTML = "";
+            
+            // 迴圈讀取資料生成 Option
+            for (const key in data) {
+                const option = document.createElement("option");
+                option.value = key;
+                
+                // 依據類別給予不同的小圖示
+                let icon = "📺";
+                if (key.includes("運動")) icon = "⚽";
+                if (key.includes("綜藝")) icon = "🤣";
+                if (key.includes("影劇")) icon = "🎬";
+                
+                option.textContent = `${icon} ${key}`;
+                select.appendChild(option);
+            }
+
+            // 初始化後更新畫面
+            updateUI();
+        }
+
+        // 畫面推播與站內信文字更新邏輯
+        function updateUI() {
+            const selectedKey = document.getElementById("contentSelect").value;
+            if(!selectedKey) return; 
+
+            const currentData = data[selectedKey];
+
+            // 更新推播
+            document.getElementById("notif-title").textContent = currentData.nt_title;
+            document.getElementById("notif-content").textContent = currentData.nt_content;
+
+            // 更新站內信
+            document.getElementById("msg-title").textContent = currentData.msg_title;
+            document.getElementById("msg-content").textContent = currentData.msg_content;
+
+            // 動態更換品牌顏色 (依據類別)
+            let brandColor = '#007aff'; // 運動類預設藍色
+            if (currentData.category.includes('影劇')) brandColor = '#ff9500'; // 影劇類橘色
+            if (currentData.category.includes('綜藝')) brandColor = '#34c759'; // 綜藝類綠色
+            document.documentElement.style.setProperty('--brand-color', brandColor);
+        }
+
+        // 時間動態更新
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const date = String(now.getDate()).padStart(2, '0');
+            
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            const dayOfWeek = weekDays[now.getDay()];
+
+            document.getElementById("clock-time").textContent = `${hours}:${minutes}`;
+            document.getElementById("clock-date").textContent = `${now.getMonth() + 1}月${now.getDate()}日 星期${dayOfWeek}`;
+            
+            // 同步更新站內信的時間標籤
+            document.getElementById("mail-date-display").textContent = `${year}-${month}-${date} ${hours}:${minutes}`;
+        }
+
+        // 頁面載入時執行
+        window.onload = () => {
+            initSelect();
+            updateClock();
+            setInterval(updateClock, 60000); // 每分鐘更新一次時間
+        };
+    </script>
+</body>
+</html>
